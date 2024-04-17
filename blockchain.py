@@ -1,10 +1,11 @@
 from concurrent.futures import ThreadPoolExecutor, as_completed
+
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 
 # Leggi il file Excel
-df = pd.read_excel('Imprese_Agricole_Italia_Sitoweb-xlsx')
+df = pd.read_excel('Imprese_Agricole_Italia_Sitoweb.xlsx')
 websites = list(df['website'])
 websites = websites[0:100]
 
