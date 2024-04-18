@@ -52,4 +52,4 @@ for website in websites:
         df.at[result[2], 'Link altre pagine'] = ''
 
 # Salva il DataFrame in un nuovo file Excel
-df.to_excel('Imprese_Agricole_Italia_SitoWeb_Output.xlsx', index=False)
+df.to_excel('Result_Imprese_Agricole_Italia_SitoWeb.xlsx', index=False)
