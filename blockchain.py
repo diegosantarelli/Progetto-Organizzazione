@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 # Leggi il file Excel
 df = pd.read_excel('Imprese_Agricole_Italia_SitoWeb.xlsx')
 websites = list(df['website'])
-websites = websites[0:100] # per i primi 100 siti
+websites = websites[0:100]  # per i primi 100 siti
 
 def check_website(website) -> (bool, str, int):
     try:
@@ -35,21 +35,24 @@ def check_website(website) -> (bool, str, int):
         print(f'Error checking website {website}: {e}')
         return False, None, websites.index(website)
 
-# Esegui la verifica per ciascun sito web
-for website in websites:
-    result = check_website(website)
-    if result[0] and result[1] is None:
-        df.at[result[2], 'blockchain nella Home Page (si/no)'] = 'si'
-        df.at[result[2], 'blockchain in altre pagine (si/no)'] = ''
-        df.at[result[2], 'Link altre pagine'] = ''
-    elif result[0] and result[1] is not None:
-        df.at[result[2], 'blockchain nella Home Page (si/no)'] = 'no'
-        df.at[result[2], 'blockchain in altre pagine (si/no)'] = 'si'
-        df.at[result[2], 'Link altre pagine'] = result[1]
-    else:
-        df.at[result[2], 'blockchain nella Home Page (si/no)'] = 'no'
-        df.at[result[2], 'blockchain in altre pagine (si/no)'] = 'no'
-        df.at[result[2], 'Link altre pagine'] = ''
+# Esegui la verifica per ciascun sito web utilizzando ThreadPoolExecutor
+with ThreadPoolExecutor(max_workers=10) as executor:
+    futures = {executor.submit(check_website, website): website for website in websites}
+    for future in as_completed(futures):
+        website = futures[future]
+        result = future.result()
+        if result[0] and result[1] is None:
+            df.at[result[2], 'blockchain nella Home Page (si/no)'] = 'si'
+            df.at[result[2], 'blockchain in altre pagine (si/no)'] = ''
+            df.at[result[2], 'Link altre pagine'] = ''
+        elif result[0] and result[1] is not None:
+            df.at[result[2], 'blockchain nella Home Page (si/no)'] = 'no'
+            df.at[result[2], 'blockchain in altre pagine (si/no)'] = 'si'
+            df.at[result[2], 'Link altre pagine'] = result[1]
+        else:
+            df.at[result[2], 'blockchain nella Home Page (si/no)'] = 'no'
+            df.at[result[2], 'blockchain in altre pagine (si/no)'] = 'no'
+            df.at[result[2], 'Link altre pagine'] = ''
 
 # Salva il DataFrame in un nuovo file Excel
 df.to_excel('Result_Imprese_Agricole_Italia_SitoWeb.xlsx', index=False)
