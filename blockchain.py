@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 
 # Leggi il file Excel
 df = pd.read_excel('Imprese_Agricole_Italia_SitoWeb.xlsx')
-websites = list(df['website'])
+websites = list(df['Website'])
 websites = websites[0:100]  # per i primi 100 siti
 
 def check_website(website) -> (bool, str, int):
