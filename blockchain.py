@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup  # Importa BeautifulSoup per il parsing dell'HTML
 # Leggi il file Excel
 df = pd.read_excel('Imprese_Agricole_Italia_SitoWeb.xlsx')  # Legge il file Excel in un DataFrame
 websites = list(df['Website'])  # Estrae i siti web dalla colonna 'Website'
-websites = websites[0:100]  # Limita l'analisi ai primi 100 siti web
+websites = websites[0:200]  # Limita l'analisi ai primi 200 siti web
 
 def check_website(website) -> (bool, str, int):
     """
