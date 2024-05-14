@@ -2,6 +2,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed  # Importa modul
 import pandas as pd  # Importa pandas per la manipolazione dei dati
 import requests  # Importa requests per le richieste HTTP
 from bs4 import BeautifulSoup  # Importa BeautifulSoup per il parsing dell'HTML
+import PyPDF2
 
 # Leggi il file Excel
 dataframe = pd.read_excel('Imprese_Agricole_Italia_SitoWeb.xlsx')  # Legge il file Excel in un DataFrame
@@ -9,6 +10,23 @@ websites = list(dataframe['Website'])  # Estrae i siti web dalla colonna 'Websit
 partite_iva = list(dataframe['Partita IVA'])
 websites = websites[0:100]  # Limita l'analisi ai primi x siti web
 partite_iva = partite_iva[0:100]
+
+# Definisci una funzione per cercare una keyword in un file PDF
+def search_keyword_in_pdf(url, keyword):
+    try:
+        # Apre il file PDF
+        with open(url, 'rb') as file:
+            reader = PyPDF2.PdfReader(file)
+            # Cicla tutte le pagine del PDF
+            for page in reader.pages:
+                # Cerca la keyword nella pagina
+                if keyword.lower() in page.extract_text().lower():
+                    return True
+        # Se la keyword non è stata trovata in nessuna pagina
+        return False
+    except Exception as e:
+        print(f'Error searching keyword in PDF: {e}')
+        return False
 
 def check_website(partita_iva) -> (bool, str, int):
     """
@@ -71,24 +89,21 @@ def check_website(partita_iva) -> (bool, str, int):
         # Controlla ogni link interno per la presenza di "blockchain"
         for link in links:
             if not link.startswith("http"):
-                link = f'https://{website}{link}'  # Costruisce l'URL completo per i link relativi
-            response = requests.get(link, timeout=60)  # Effettua una richiesta GET per il link
-            soup = BeautifulSoup(response.text, 'html.parser')  # Parsing dell'HTML
-            if 'blockchain' in soup.get_text().lower():
-                return True, link, partite_iva.index(partita_iva)  # Ritorna True se "blockchain" è trovata in una pagina
+                link = f'https://{website}{link}'
+            if link.endswith('.pdf'):
+                if search_keyword_in_pdf(link, 'blockchain'):
+                    return True, link, partite_iva.index(partita_iva)
+            else:
+                response = requests.get(link, timeout=60)
+                soup = BeautifulSoup(response.text, 'html.parser')
+                if 'blockchain' in soup.get_text().lower():
+                    return True, link, partite_iva.index(partita_iva)
         
-        return False, None, partite_iva.index(partita_iva)  # Ritorna False se "blockchain" non è trovata in nessuna pagina
+        return False, None, partite_iva.index(partita_iva)
     except Exception as e:
         print(f'Error checking website {website}: {e}')
         return None, None, partite_iva.index(partita_iva)
-
-
-# Cast delle colonne del DataFrame
-"""
-dataframe['blockchain nella Home Page (si/no)'] = dataframe['blockchain nella Home Page (si/no)'].astype(str) 
-dataframe['blockchain in altre pagine (si/no)'] = dataframe['blockchain in altre pagine (si/no)'].astype(str)
-dataframe['Link altre pagine'] = dataframe['Link altre pagine'].astype(str)
-"""
+    
 
 # Utilizza ThreadPoolExecutor per eseguire le richieste HTTP in parallelo
 with ThreadPoolExecutor(max_workers=10) as executor:
