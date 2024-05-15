@@ -8,8 +8,8 @@ import PyPDF2
 dataframe = pd.read_excel('Imprese_Agricole_Italia_SitoWeb.xlsx')  # Legge il file Excel in un DataFrame
 websites = list(dataframe['Website'])  # Estrae i siti web dalla colonna 'Website'
 partite_iva = list(dataframe['Partita IVA'])
-websites = websites[0:100]  # Limita l'analisi ai primi x siti web
-partite_iva = partite_iva[0:100]
+# websites = websites[0:100]  # Limita l'analisi ai primi x siti web
+# partite_iva = partite_iva[0:100]
 
 # Definisci una funzione per cercare una keyword in un file PDF
 def search_keyword_in_pdf(url, keyword):
