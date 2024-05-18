@@ -30,7 +30,7 @@ def check_website(partita_iva) -> (bool, str, int):
 
     try:
         # Tenta la connessione con HTTPS
-        url = f'https://{website}'
+        url = f'http://{website}'
         response = requests.get(url, timeout=60)
         soup = BeautifulSoup(response.text, 'html.parser')
         
@@ -38,11 +38,11 @@ def check_website(partita_iva) -> (bool, str, int):
             return True, None, partite_iva.index(partita_iva)
         
         links = {
-            f'https://{link.get("href").rsplit("https://")[-1]}'
-            if 'https://' in link.get('href') else
             f'http://{link.get("href").rsplit("http://")[-1]}'
             if 'http://' in link.get('href') else
-            f'https://{website}{link.get("href")}'
+            f'http://{link.get("href").rsplit("http://")[-1]}'
+            if 'http://' in link.get('href') else
+            f'http://{website}{link.get("href")}'
             if (website not in link.get('href') and not link.get('href').startswith('http') and not link.get(
                 'href').startswith('www') and len(link.get('href').split('.')) <= 2) and not website.startswith(
                 'http') else
@@ -55,9 +55,6 @@ def check_website(partita_iva) -> (bool, str, int):
                        website not in link.get('href') and not link.get('href').startswith('http') and not link.get(
                    'href').startswith('www') and len(link.get('href').split('.')) <= 2)) and
                link.get('href') not in {
-                   f'https://{website}/',
-                   f'https://{website}/#',
-                   f'https://{website}',
                    f'http://{website}',
                    f'http://{website}/',
                    f'http://{website}/#'
@@ -72,7 +69,7 @@ def check_website(partita_iva) -> (bool, str, int):
 
         for link in links:
             if not link.startswith("http"):
-                link = f'https://{website}{link}'
+                link = f'http://{website}{link}'
             if link.endswith('.pdf'):
                 if search_keyword_in_pdf(link, 'blockchain'):
                     return True, link, partite_iva.index(partita_iva)
@@ -83,68 +80,8 @@ def check_website(partita_iva) -> (bool, str, int):
                     return True, link, partite_iva.index(partita_iva)
         
         return False, None, partite_iva.index(partita_iva)
-    
-    except requests.exceptions.RequestException:
 
-        print(f'CONNESSIONE HTTPS FALLITA, ORA PROVA CON HTTP')
-        # Se la connessione HTTPS fallisce, tenta con HTTP
-        try:
-            url = f'http://{website}'
-            response = requests.get(url, timeout=60)
-            soup = BeautifulSoup(response.text, 'html.parser')
-            
-            if 'blockchain' in soup.get_text().lower():
-                return True, None, partite_iva.index(partita_iva)
-            
-            links = {
-                f'https://{link.get("href").rsplit("https://")[-1]}'
-                if 'https://' in link.get('href') else
-                f'http://{link.get("href").rsplit("http://")[-1]}'
-                if 'http://' in link.get('href') else
-                f'https://{website}{link.get("href")}'
-                if (website not in link.get('href') and not link.get('href').startswith('http') and not link.get(
-                    'href').startswith('www') and len(link.get('href').split('.')) <= 2) and not website.startswith(
-                    'http') else
-                f'{website}{link.get("href")}' if (website not in link.get('href') and not link.get('href').startswith(
-                    'http') and not link.get('href').startswith('www') and len(
-                    link.get('href').split('.')) <= 2) and website.startswith('http') else
-                link.get('href') for link in soup.find_all('a')
-                if link.get('href') and
-                   (website in link.get('href') or (
-                           website not in link.get('href') and not link.get('href').startswith('http') and not link.get(
-                       'href').startswith('www') and len(link.get('href').split('.')) <= 2)) and
-                   link.get('href') not in {
-                       f'https://{website}/',
-                       f'https://{website}/#',
-                       f'https://{website}',
-                       f'http://{website}',
-                       f'http://{website}/',
-                       f'http://{website}/#'
-                   } and 'tel:' not in link.get('href') and 'javascript' not in link.get(
-                    'href') and 'mailto:' not in link.get('href') and not link.get(
-                    'href').endswith('.mp4') and not link.get('href').endswith('.mp3') and not link.get('href').endswith(
-                    '.jpg') and not link.get('href').endswith('.jpeg') and not link.get('href').endswith(
-                    '.png') and not link.get('href').endswith('.gif') and not link.get('href').endswith(
-                    '.svg') and not link.get('href').endswith('.tiff') and not link.get('href').endswith(
-                    '.bmp') and not link.get('href').endswith('.ico') and not link.get('href').endswith('.webp')
-            }
-
-            for link in links:
-                if not link.startswith("http"):
-                    link = f'http://{website}{link}'
-                if link.endswith('.pdf'):
-                    if search_keyword_in_pdf(link, 'blockchain'):
-                        return True, link, partite_iva.index(partita_iva)
-                else:
-                    response = requests.get(link, timeout=60)
-                    soup = BeautifulSoup(response.text, 'html.parser')
-                    if 'blockchain' in soup.get_text().lower():
-                        return True, link, partite_iva.index(partita_iva)
-
-            return False, None, partite_iva.index(partita_iva)
-
-        except Exception as e:
-            print(f'NON VA BENE NEANCHE CON HTTP')
+    except Exception as e:
             print(f'Error checking website {website}: {e}')
             return None, None, partite_iva.index(partita_iva)
 
