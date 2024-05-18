@@ -11,34 +11,19 @@ partite_iva = list(dataframe['Partita IVA'])
 # websites = websites[0:100]  # Limita l'analisi ai primi x siti web
 # partite_iva = partite_iva[0:100]
 
-# Definisci una funzione per cercare una keyword in un file PDF
 def search_keyword_in_pdf(url, keyword):
     try:
-        # Apre il file PDF
         with open(url, 'rb') as file:
             reader = PyPDF2.PdfReader(file)
-            # Cicla tutte le pagine del PDF
             for page in reader.pages:
-                # Cerca la keyword nella pagina
                 if keyword.lower() in page.extract_text().lower():
                     return True
-        # Se la keyword non è stata trovata in nessuna pagina
         return False
     except Exception as e:
         print(f'Error searching keyword in PDF: {e}')
         return False
 
 def check_website(partita_iva) -> (bool, str, int):
-    """
-    Funzione che controlla la presenza della parola "blockchain" nelle pagine del sito web.
-    
-    Args:
-        website (str): URL del sito web da controllare.
-        
-    Returns:
-        Tuple: Una tupla contenente un booleano per la presenza della parola "blockchain" nella homepage,
-        una stringa per l'URL della pagina contenente "blockchain" (se presente), e l'indice del sito nel DataFrame.
-    """
     index = partite_iva.index(partita_iva)
     website = websites[index]
     print(index)
@@ -48,11 +33,9 @@ def check_website(partita_iva) -> (bool, str, int):
         response = requests.get(url, timeout=60)  # Effettua una richiesta GET al sito web
         soup = BeautifulSoup(response.text, 'html.parser')  # Parsing dell'HTML
         
-        # Controlla se "blockchain" è presente nella home page
         if 'blockchain' in soup.get_text().lower():
             return True, None, partite_iva.index(partita_iva)
         
-        # Trova tutti i link interni al sito e li filtra
         links = {
         f'https://{link.get("href").rsplit("https://")[-1]}'
         if 'https://' in link.get('href') else
