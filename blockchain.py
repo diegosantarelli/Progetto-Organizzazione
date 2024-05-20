@@ -8,8 +8,8 @@ import PyPDF2
 dataframe = pd.read_excel('Imprese_Agricole_Italia_SitoWeb.xlsx')
 websites = list(dataframe['Website'])
 partite_iva = list(dataframe['Partita IVA'])
-websites = websites[0:100]
-partite_iva = partite_iva[0:100]
+# websites = websites[0:100]
+# partite_iva = partite_iva[0:100]
 
 def search_keyword_in_pdf(url, keyword):
     try:
@@ -91,7 +91,7 @@ dataframe['blockchain in altre pagine (si/no)'] = dataframe['blockchain in altre
 dataframe['Link altre pagine'] = dataframe['Link altre pagine'].astype(str)
 
 # Utilizza ThreadPoolExecutor per eseguire le richieste HTTP in parallelo
-with ThreadPoolExecutor(max_workers=100) as executor:
+with ThreadPoolExecutor(max_workers=10) as executor:
     futures = [executor.submit(check_website, partita_iva) for partita_iva in partite_iva]
     for future in as_completed(futures):
         result = future.result()

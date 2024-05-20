@@ -13,11 +13,9 @@ count_link = Link_con_blockchain['Website'].count()
 
 # Visualizza i siti con "si" nella colonna "blockchain nella Home Page (si/no)"
 print("Siti con blockchain nella Home Page:", count_homepage)
-print(Homepage_con_blockchain['Website'])
+print(Homepage_con_blockchain[['Website']])
 
-# Visualizza i siti con "si" nella colonna "blockchain in altre pagine (si/no)"
+# Visualizza i siti con "si" nella colonna "blockchain in altre pagine (si/no)" insieme ai link e all'indice
 print("Siti con blockchain in altre pagine:", count_link)
-print(Link_con_blockchain['Website'])
-
-
-
+for index, row in Link_con_blockchain.iterrows():
+    print(f"{index}, SITO: {row['Website']}, LINK: {row['Link altre pagine']}")
