@@ -5,10 +5,10 @@ import matplotlib.pyplot as plt
 df = pd.read_excel('Result_Imprese_Agricole_Italia_SitoWeb.xlsx')
 
 # Conta i siti con blockchain nella homepage
-homepage_counts = df['blockchain nella Home Page (si/no)'].value_counts().reindex(['no', 'si', 'errore'])
+homepage_counts = df['blockchain nella Home Page (si/no)'].value_counts().reindex(['no', 'si'])
 
 # Conta i siti con blockchain in altre pagine
-link_counts = df['blockchain in altre pagine (si/no)'].value_counts().reindex(['no', 'si', 'errore'])
+link_counts = df['blockchain in altre pagine (si/no)'].value_counts().reindex(['no', 'si'])
 
 # Conta i siti che danno errore
 error_counts = df['errore'].value_counts().reindex(['si', 'no']) if 'errore' in df.columns else pd.Series([0, 0], index=['si', 'no'])
